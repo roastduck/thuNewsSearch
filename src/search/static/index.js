@@ -18,6 +18,14 @@ angular.module('appIndex', [])
         $scope.page = 1;
         $scope.result = [];
         $scope.notify = function() { // notify change of $scope.searchInput
+            if ($scope.searchInput == '')
+            {
+                $scope.result = [];
+                $timeout(function() {
+                    $("#maininput").focus();
+                });
+                return;
+            }
             load.update($scope.searchInput.split(' '), $scope.page, function(result) {
                 $scope.result = result.map(function(row) {
                     row['title'] = $sce.trustAsHtml(row['title']);

@@ -1,5 +1,6 @@
 import re
 import json
+import jieba
 from django.forms.models import model_to_dict
 from django.http import HttpResponse
 from models import Pages
@@ -12,6 +13,7 @@ def search(request):
 
     if (request.GET.has_key('q')):
         keywords = request.GET.getlist('q')
+        keywords = list(reduce(lambda x, y: x | y, map(set, map(jieba.cut_for_search, keywords))))
     else:
         return HttpResponse('{ "error": "empty query" }', content_type = 'application/json')
     if (request.GET.has_key('page')):
