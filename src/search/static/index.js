@@ -1,12 +1,13 @@
 angular.module('appIndex', [])
     .service('load', ['$http', function($http) {
-        this.update = function(words, page, callback) { // callback : fn(retrieved list)
+        this.update = function(words, page, filtertype, callback) { // callback : fn(retrieved list)
             $http({
                 method: 'GET',
                 url: '/api/search',
                 params: {
                     q: words,
-                    page: page
+                    page,
+                    filtertype
                 }
             }).then(function(response) {
                 callback(response.data)
@@ -15,10 +16,12 @@ angular.module('appIndex', [])
     }])
     .controller('IndexController', ['$scope', '$timeout', '$sce', '$location', 'load', function($scope, $timeout, $sce, $location, load) {
         var update = function() { // update data
-            var searchInput = $location.search()['q'];
-            var page = $location.search()['page'];
+            var searchInput = $location.search()['q']; // not in $scope for situation that user is typing
+            $scope.page = $location.search()['page'];
+            $scope.filtertype = $location.search()['filtertype'];
             if (searchInput === undefined) searchInput = '';
-            if (page === undefined) page = 1;
+            if ($scope.page === undefined) $scope.page = 1;
+            if ($scope.filtertype == undefined) $scope.filtertype = "0";
 
             if (searchInput == '')
             {
@@ -28,7 +31,7 @@ angular.module('appIndex', [])
                 });
                 return;
             }
-            load.update(searchInput.split(' '), page, function(result) {
+            load.update(searchInput.split(' '), $scope.page, $scope.filtertype, function(result) {
                 $scope.result = result.map(function(row) {
                     row['title'] = $sce.trustAsHtml(row['title']);
                     row['content'] = $sce.trustAsHtml(row['content']);
@@ -49,12 +52,11 @@ angular.module('appIndex', [])
         var notify = function() { // notify change of $scope.searchInput
             $location.search('q', $scope.searchInput);
             $location.search('page', $scope.page);
+            $location.search('filtertype', $scope.filtertype);
         };
 
         $scope.searchInput = $location.search()['q'];
-        $scope.page = $location.search()['page'];
         if ($scope.searchInput === undefined) $scope.searchInput = '';
-        if ($scope.page === undefined) $scope.page = 1;
         $scope.result = [];
         $scope.nextPage = function() {
             $scope.page ++;
@@ -65,6 +67,11 @@ angular.module('appIndex', [])
             notify();
         };
         $scope.updsearch = function() {
+            $scope.page = 1;
+            $scope.filtertype = "0";
+            notify();
+        };
+        $scope.updfilter = function() {
             $scope.page = 1;
             notify();
         };

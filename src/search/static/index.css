@@ -18,6 +18,7 @@ h4 {
 }
 
 .pager-btn:hover {
-    text-decoration: underline
+    text-decoration: underline;
+    cursor: pointer
 }
 

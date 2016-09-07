@@ -1,5 +1,6 @@
 import re
 import json
+import time
 import jieba
 from django.forms.models import model_to_dict
 from django.http import HttpResponse
@@ -9,6 +10,7 @@ def search(request):
     ''' JSON API
         GET q : list of keywords to search
         GET page : page number to show, starting from 1
+        GET filtertype : 0 = all, 1 = this year, 2 = this month
         return : { "error" : "message" } or a list of pages '''
 
     if (request.GET.has_key('q')):
@@ -22,10 +24,23 @@ def search(request):
         page = 1
     if (page < 1):
         page = 1
+    if request.GET.has_key('filtertype'):
+        filterType = int(request.GET['filtertype'])
+    else:
+        filterType = 0
+    if (filterType < 0) or (filterType > 2):
+        filterType = 0
 
     newsPerPage = 10
     news = Pages.satisfyKeys(keywords)[(page - 1) * newsPerPage : page * newsPerPage]
     news = map(model_to_dict, news)
+
+    if filterType == 1:
+        cur = time.strftime("%Y/")
+        news = filter(lambda x: x["date"].startswith(cur), news)
+    if filterType == 2:
+        cur = time.strftime("%Y/%m")
+        news = filter(lambda x: x["date"].startswith(cur), news)
 
     def digestContent(page):
         content = page['content']
@@ -68,7 +83,7 @@ def search(request):
         page['content'] = ret
         page['title'] = title
         return page
-        
+
     news = map(digestContent, news)
     return HttpResponse(json.dumps(news).encode('utf8'), content_type = 'application/json')
 

@@ -19,6 +19,22 @@
         <script src="/static/index.js"></script>
     </head>
     <body ng-controller="IndexController">
+        <nav class="navbar navbar-fixed-top navbar-inverse">
+            <div class="container-fluid">
+                <span class="navbar-brand"><a href="#">THU News Search</a></span>
+                <form class="navbar-form" ng-if="result.length">
+                    <input id="navinput" class="col-xs-5" type="text" ng-model="$parent.searchInput" ng-change="updsearch()"></input>
+                </form>
+                <form class="navbar-form pull-right">
+                    <label for="datefilter" style="color:white">Date Filter:</label>
+                    <select id="datefilter" ng-model="filtertype" ng-change="updfilter()">
+                        <option value="0" selected="selected">All</option>
+                        <option value="1">This Year Only</option>
+                        <option value="2">This Month Only</option>
+                    </select>
+                </form>
+            </div>
+        </nav>
         <div class="container-fluid" ng-if="! result.length">
             <div class="row" style="height:100px">
             </div>
@@ -36,14 +52,6 @@
                 </div>
             </div>
         </div>
-        <nav class="navbar navbar-fixed-top navbar-inverse" ng-if="result.length">
-            <div class="container-fluid">
-                <span class="navbar-brand"><a href="#">THU News Search</a></span>
-                <form class="navbar-form">
-                    <input id="navinput" class="col-xs-5" type="text" ng-model="$parent.searchInput" ng-change="updsearch()"></input>
-                </form>
-            </div>
-        </nav>
         <div class="container-fluid" ng-if="result.length">
             <div class="row">
                 <div class="col-xs-8">
