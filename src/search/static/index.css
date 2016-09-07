@@ -8,6 +8,16 @@ body {
 
 h4 {
     text-decoration: underline;
-    margin-top: 25;
-    margin-bottom: 3
+    margin-top: 25px;
+    margin-bottom: 3px
 }
+
+.pager-btn {
+    font-weight: bold;
+    color: blueviolet
+}
+
+.pager-btn:hover {
+    text-decoration: underline
+}
+

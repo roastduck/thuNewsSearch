@@ -32,15 +32,15 @@
             </div>
             <div class="row">
                 <div class="col-xs-6 col-xs-offset-3">
-                    <input id="maininput" class="col-xs-12" type="text" style="height:45px" autofocus ng-model="$parent.searchInput" ng-change="notify();"></input>
+                    <input id="maininput" class="col-xs-12" type="text" style="height:45px" autofocus ng-model="$parent.searchInput" ng-change="updsearch();"></input>
                 </div>
             </div>
         </div>
         <nav class="navbar navbar-fixed-top navbar-inverse" ng-if="result.length">
             <div class="container-fluid">
-                <span class="navbar-brand">THU News Search</span>
+                <span class="navbar-brand"><a href="#">THU News Search</a></span>
                 <form class="navbar-form">
-                    <input id="navinput" class="col-xs-5" type="text" ng-model="$parent.searchInput" ng-change="notify()"></input>
+                    <input id="navinput" class="col-xs-5" type="text" ng-model="$parent.searchInput" ng-change="updsearch()"></input>
                 </form>
             </div>
         </nav>
@@ -55,6 +55,13 @@
                     </div>
                 </div>
             </div>
+            <nav>
+                <ul class="pager">
+                    <li><span class='pager-btn' ng-if='page>1' ng-click='prevPage();'>Previous</span></li>
+                    <li>Page {{page}}</li>
+                    <li><span class='pager-btn' ng-if='result.length>=10' ng-click='nextPage();'>Next</span></li>
+                </ul>
+            </nav>
         </div>
     </body>
 </html>

@@ -14,18 +14,13 @@ angular.module('appIndex', [])
         };
     }])
     .controller('IndexController', ['$scope', '$timeout', '$sce', '$location', 'load', function($scope, $timeout, $sce, $location, load) {
-        $scope.searchInput = $location.search()['q'];
-        $scope.page = $location.search()['page'];
+        var update = function() { // update data
+            var searchInput = $location.search()['q'];
+            var page = $location.search()['page'];
+            if (searchInput === undefined) searchInput = '';
+            if (page === undefined) page = 1;
 
-        if ($scope.searchInput === undefined) $scope.searchInput = '';
-        if ($scope.page === undefined) $scope.page = 1;
-
-        $scope.result = [];
-
-        $scope.notify = function() { // notify change of $scope.searchInput
-            $location.search('q', $scope.searchInput);
-            $location.search('page', $scope.page);
-            if ($scope.searchInput == '')
+            if (searchInput == '')
             {
                 $scope.result = [];
                 $timeout(function() {
@@ -33,7 +28,7 @@ angular.module('appIndex', [])
                 });
                 return;
             }
-            load.update($scope.searchInput.split(' '), $scope.page, function(result) {
+            load.update(searchInput.split(' '), page, function(result) {
                 $scope.result = result.map(function(row) {
                     row['title'] = $sce.trustAsHtml(row['title']);
                     row['content'] = $sce.trustAsHtml(row['content']);
@@ -46,8 +41,32 @@ angular.module('appIndex', [])
                         $("#maininput").focus();
                 });
             });
+            window.scrollTo(0, 0);
+        };
+        $scope.$on('$locationChangeSuccess', update);
+        update();
+
+        var notify = function() { // notify change of $scope.searchInput
+            $location.search('q', $scope.searchInput);
+            $location.search('page', $scope.page);
         };
 
-        $scope.notify();
-    }])
+        $scope.searchInput = $location.search()['q'];
+        $scope.page = $location.search()['page'];
+        if ($scope.searchInput === undefined) $scope.searchInput = '';
+        if ($scope.page === undefined) $scope.page = 1;
+        $scope.result = [];
+        $scope.nextPage = function() {
+            $scope.page ++;
+            notify();
+        };
+        $scope.prevPage = function() {
+            $scope.page --;
+            notify();
+        };
+        $scope.updsearch = function() {
+            $scope.page = 1;
+            notify();
+        };
+    }]);
 
