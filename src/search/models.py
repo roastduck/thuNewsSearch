@@ -17,6 +17,6 @@ class Pages(models.Model):
         return q
 
 class Inverted(models.Model):
-    key = models.CharField(max_length = 10)
+    key = models.CharField(max_length = 10, db_index = True)
     pageId = models.IntegerField()
 
