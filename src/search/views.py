@@ -1,3 +1,69 @@
-from django.shortcuts import render
+import re
+import json
+from django.forms.models import model_to_dict
+from django.http import HttpResponse
+from models import Pages
 
-# Create your views here.
+def search(request):
+    ''' JSON API
+        GET q : list of keywords to search
+        GET page : page number to show, starting from 1
+        return : { "error" : "message" } or a list of pages '''
+
+    if (request.GET.has_key('q')):
+        keywords = request.GET.getlist('q')
+    else:
+        return HttpResponse('{ "error": "empty query" }', content_type = 'application/json')
+    if (request.GET.has_key('page')):
+        page = request.GET['page']
+    else:
+        page = 1
+    if (page < 1):
+        page = 1
+
+    newsPerPage = 10
+    news = Pages.satisfyKeys(keywords)[(page - 1) * newsPerPage : page * newsPerPage]
+    news = map(model_to_dict, news)
+
+    def digestContent(page):
+        content = page['content']
+        arr = []
+        ret = ''
+
+        for key in keywords:
+            for piece in re.finditer(key, content):
+                span = piece.span()
+                span = (max(0, span[0] - 7), min(len(content), span[1] + 7))
+                arr.append((span[0], 1))
+                arr.append((span[1], -1))
+        arr.sort(lambda x, y: 1 if x[0] > y[0] else -1 if x[0] < y[0] else 0)
+
+        stPos = -1
+        stCnt = 0
+        for item in arr:
+            if item[1] == 1:
+                if stCnt == 0:
+                    stPos = item[0]
+                stCnt += 1
+            else:
+                stCnt -= 1
+                if stCnt == 0:
+                    ret += content[stPos : item[0]] + '...'
+                    if len(ret) > 50:
+                        break
+                    stPos = -1
+            if (stPos != -1) and (len(ret) + item[0] - stPos > 50):
+                ret += content[stPos : item[0]] + '...'
+                break
+        if ret == '':
+            ret = content[:30]
+
+        for key in keywords:
+            ret = ret.replace(key, "<em>%s</em>" % key)
+
+        page['content'] = ret
+        return page
+        
+    news = map(digestContent, news)
+    return HttpResponse(json.dumps(news), content_type = 'application/json')
+
