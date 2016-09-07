@@ -15,7 +15,7 @@ def search(request):
     else:
         return HttpResponse('{ "error": "empty query" }', content_type = 'application/json')
     if (request.GET.has_key('page')):
-        page = request.GET['page']
+        page = int(request.GET['page'])
     else:
         page = 1
     if (page < 1):
@@ -27,13 +27,14 @@ def search(request):
 
     def digestContent(page):
         content = page['content']
+        title = page['title']
         arr = []
         ret = ''
 
         for key in keywords:
             for piece in re.finditer(key, content):
                 span = piece.span()
-                span = (max(0, span[0] - 7), min(len(content), span[1] + 7))
+                span = (max(0, span[0] - 20), min(len(content), span[1] + 20))
                 arr.append((span[0], 1))
                 arr.append((span[1], -1))
         arr.sort(lambda x, y: 1 if x[0] > y[0] else -1 if x[0] < y[0] else 0)
@@ -49,21 +50,23 @@ def search(request):
                 stCnt -= 1
                 if stCnt == 0:
                     ret += content[stPos : item[0]] + '...'
-                    if len(ret) > 50:
+                    if len(ret) > 150:
                         break
                     stPos = -1
-            if (stPos != -1) and (len(ret) + item[0] - stPos > 50):
+            if (stPos != -1) and (len(ret) + item[0] - stPos > 150):
                 ret += content[stPos : item[0]] + '...'
                 break
         if ret == '':
-            ret = content[:30]
+            ret = content[:130]
 
         for key in keywords:
             ret = ret.replace(key, "<em>%s</em>" % key)
+            title = title.replace(key, "<em>%s</em>" % key)
 
         page['content'] = ret
+        page['title'] = title
         return page
         
     news = map(digestContent, news)
-    return HttpResponse(json.dumps(news), content_type = 'application/json')
+    return HttpResponse(json.dumps(news).encode('utf8'), content_type = 'application/json')
 

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html ng-app="appIndex">
+    <head>
+        <title>THU News Search</title>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <!-- the three above MUST be in the beginning -->
+        <meta name="author" content="RD" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <script src="/static/third_party/angular.min.js"></script>
+
+        <link rel="stylesheet" href="/static/third_party/bootstrap.min.css" />
+        <script src="/static/third_party/jquery.min.js"></script> <!-- required before bootstrap.min.js -->
+        <script src="/static/third_party/bootstrap.min.js"></script>
+
+        <link rel="stylesheet" href="/static/index.css" />
+        <script src="/static/index.js"></script>
+    </head>
+    <body ng-controller="IndexController">
+        <div class="container-fluid" ng-if="! result.length">
+            <div class="row" style="height:100px">
+            </div>
+            <div class="row">
+                <div class="col-xs-8 col-xs-offset-2">
+                    <div class="jumbotron">
+                        <h1>THU News Search</h1>
+                        <p>Search News of Tsinghua University</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 col-xs-offset-3">
+                    <input id="maininput" class="col-xs-12" type="text" style="height:45px" autofocus ng-model="$parent.searchInput" ng-change="notify();"></input>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar navbar-fixed-top navbar-inverse" ng-if="result.length">
+            <div class="container-fluid">
+                <span class="navbar-brand">THU News Search</span>
+                <form class="navbar-form">
+                    <input id="navinput" class="col-xs-5" type="text" ng-model="$parent.searchInput" ng-change="notify()"></input>
+                </form>
+            </div>
+        </nav>
+        <div class="container-fluid" ng-if="result.length">
+            <div class="row">
+                <div class="col-xs-8">
+                    <div ng-repeat="row in result">
+                        <h4><a href="//news.tsinghua.edu.cn/{{row.htmlurl}}" ng-bind-html="row.title"></a></h4>
+                        <span class="label label-primary">{{row.columnName}}</span>
+                        <span class="label label-default">{{row.date}}</span>
+                        <p ng-bind-html="row.content"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
