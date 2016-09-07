@@ -13,11 +13,18 @@ angular.module('appIndex', [])
             });
         };
     }])
-    .controller('IndexController', ['$scope', '$timeout', '$sce', 'load', function($scope, $timeout, $sce, load) {
-        $scope.searchInput = '';
-        $scope.page = 1;
+    .controller('IndexController', ['$scope', '$timeout', '$sce', '$location', 'load', function($scope, $timeout, $sce, $location, load) {
+        $scope.searchInput = $location.search()['q'];
+        $scope.page = $location.search()['page'];
+
+        if ($scope.searchInput === undefined) $scope.searchInput = '';
+        if ($scope.page === undefined) $scope.page = 1;
+
         $scope.result = [];
+
         $scope.notify = function() { // notify change of $scope.searchInput
+            $location.search('q', $scope.searchInput);
+            $location.search('page', $scope.page);
             if ($scope.searchInput == '')
             {
                 $scope.result = [];
@@ -40,5 +47,7 @@ angular.module('appIndex', [])
                 });
             });
         };
+
+        $scope.notify();
     }])
 
